@@ -1,0 +1,8 @@
+{
+  "name": "Teka Teki Silang Interaktif - Digital Onboarding",
+  "description": "Aplikasi Teka Teki Silang Interaktif Mata Pelajaran Digital On Boarding dengan timer, 3 kesempatan, pembahasan, dan portal admin export Excel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
