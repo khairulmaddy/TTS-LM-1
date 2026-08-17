@@ -1,7 +1,7 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { GRID_ROWS, GRID_COLS } from '../data/questions';
 import { ActiveSelection, Question } from '../types';
-import { ArrowLeftRight, ArrowDownUp } from 'lucide-react';
+import { ArrowLeftRight, ArrowDownUp, Maximize2, Minimize2 } from 'lucide-react';
 
 interface CrosswordGridProps {
   gridState: string[][]; // 14 x 15 array of user characters
@@ -20,6 +20,8 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
   onCellChange,
   onToggleDirection,
 }) => {
+  const [gridSizeMode, setGridSizeMode] = useState<'small' | 'normal'>('small');
+
   const cellRefs = useRef<(HTMLInputElement | null)[][]>(
     Array.from({ length: GRID_ROWS }, () => Array(GRID_COLS).fill(null))
   );
@@ -153,9 +155,9 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
   return (
     <div className="flex flex-col items-center gap-3">
       {/* Direction & Status Controls Bar */}
-      <div className="flex items-center justify-between w-full max-w-full px-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 w-full px-1">
         <div className="flex items-center gap-2 text-xs font-bold text-slate-300 bg-slate-900/90 px-3 py-1.5 rounded-xl border border-indigo-500/30">
-          <span>Arah Pengerjaan:</span>
+          <span>Arah:</span>
           <span className="text-amber-400 font-extrabold flex items-center gap-1 uppercase tracking-wider">
             {activeSelection.direction === 'H' ? (
               <>
@@ -171,20 +173,47 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
           </span>
         </div>
 
-        <button
-          onClick={onToggleDirection}
-          className="px-3 py-1.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-md active:scale-95 flex items-center gap-1.5 cursor-pointer"
-          title="Ubah arah input cell (Mendatar / Menurun)"
-        >
-          <ArrowLeftRight className="w-3.5 h-3.5" />
-          <span>Ubah Arah (Spasi)</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Size Switcher */}
+          <button
+            onClick={() => setGridSizeMode(gridSizeMode === 'small' ? 'normal' : 'small')}
+            className="px-2.5 py-1.5 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-500/30 transition-all flex items-center gap-1 cursor-pointer"
+            title="Ganti Ukuran Grid (Small / Standard)"
+          >
+            {gridSizeMode === 'small' ? (
+              <>
+                <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
+                <span>Ukuran: <strong>Small</strong></span>
+              </>
+            ) : (
+              <>
+                <Minimize2 className="w-3.5 h-3.5 text-indigo-400" />
+                <span>Ukuran: <strong>Standard</strong></span>
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={onToggleDirection}
+            className="px-3 py-1.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-md active:scale-95 flex items-center gap-1.5 cursor-pointer"
+            title="Ubah arah input cell (Mendatar / Menurun)"
+          >
+            <ArrowLeftRight className="w-3.5 h-3.5" />
+            <span>Arah (Spasi)</span>
+          </button>
+        </div>
       </div>
 
       {/* Grid Container */}
-      <div className="w-full overflow-x-auto p-2 sm:p-4 bg-slate-900/90 rounded-2xl border border-indigo-500/30 shadow-2xl">
+      <div
+        className={`w-full mx-auto transition-all duration-300 p-2 sm:p-3 bg-slate-900/90 rounded-2xl border border-indigo-500/30 shadow-2xl flex justify-center ${
+          gridSizeMode === 'small'
+            ? 'max-w-[340px] sm:max-w-[420px] md:max-w-[460px]'
+            : 'max-w-[540px] md:max-w-[620px]'
+        }`}
+      >
         <div
-          className="grid gap-1 min-w-[340px] sm:min-w-[500px] mx-auto select-none"
+          className="grid gap-[2px] sm:gap-[3px] w-full select-none"
           style={{
             gridTemplateColumns: `repeat(${GRID_COLS}, minmax(0, 1fr))`,
           }}
@@ -202,7 +231,7 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
                 return (
                   <div
                     key={cellKey}
-                    className="aspect-square bg-slate-950/80 rounded-md border border-slate-900/60 pointer-events-none"
+                    className="aspect-square bg-slate-950/80 rounded-[3px] border border-slate-900/40 pointer-events-none"
                   />
                 );
               }
@@ -211,23 +240,23 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
                 <div
                   key={cellKey}
                   onClick={() => onSelectCell(r, c)}
-                  className={`relative aspect-square rounded-md transition-all duration-150 cursor-pointer flex items-center justify-center font-black ${
+                  className={`relative aspect-square rounded-[4px] transition-all duration-150 cursor-pointer flex items-center justify-center font-black ${
                     isSelected
-                      ? 'bg-amber-300 ring-4 ring-amber-400 ring-offset-2 ring-offset-slate-950 text-slate-950 z-20 scale-105 shadow-lg'
+                      ? 'bg-amber-300 ring-2 ring-amber-400 ring-offset-1 ring-offset-slate-950 text-slate-950 z-20 scale-105 shadow-md'
                       : isInActiveWord
-                      ? 'bg-indigo-200 text-indigo-950 border-2 border-indigo-400 shadow-md'
+                      ? 'bg-indigo-200 text-indigo-950 border border-indigo-400 shadow-sm'
                       : 'bg-white hover:bg-slate-100 text-slate-950 border border-slate-300 hover:border-indigo-400'
                   }`}
                 >
                   {/* Start Number Label */}
                   {startNumber && (
                     <span
-                      className={`absolute top-0.5 left-1 text-[9px] sm:text-[11px] font-extrabold leading-none ${
+                      className={`absolute top-[1px] left-[2px] text-[7px] sm:text-[8px] font-black leading-none pointer-events-none ${
                         isSelected
-                          ? 'text-slate-900 font-black'
+                          ? 'text-slate-900'
                           : isInActiveWord
-                          ? 'text-indigo-900 font-black'
-                          : 'text-indigo-700 font-extrabold'
+                          ? 'text-indigo-900'
+                          : 'text-indigo-700'
                       }`}
                     >
                       {startNumber}
@@ -246,9 +275,13 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
                     onKeyDown={(e) => handleKeyDown(e, r, c)}
                     onFocus={() => onSelectCell(r, c)}
                     className={`w-full h-full text-center bg-transparent uppercase font-black focus:outline-none cursor-pointer ${
-                      isSelected
-                        ? 'text-slate-950 text-base sm:text-xl font-black'
-                        : 'text-slate-950 text-sm sm:text-lg font-black'
+                      gridSizeMode === 'small'
+                        ? isSelected
+                          ? 'text-xs sm:text-sm font-black'
+                          : 'text-[11px] sm:text-xs font-black'
+                        : isSelected
+                        ? 'text-sm sm:text-lg font-black'
+                        : 'text-xs sm:text-base font-black'
                     }`}
                     style={{
                       caretColor: 'transparent',
@@ -263,3 +296,4 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
     </div>
   );
 };
+
